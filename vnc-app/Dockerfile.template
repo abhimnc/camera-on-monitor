@@ -1,0 +1,62 @@
+FROM balenalib/raspberry-pi-debian-python
+
+RUN install_packages x11vnc \
+    x11-utils \
+    xvfb \
+    wmctrl \
+    supervisor
+
+RUN install_packages xserver-xorg \
+  xserver-xorg-input-evdev \
+  xinit \
+  xfce4 \
+  xfce4-terminal \
+  x11-xserver-utils \
+  dbus-x11 \
+  xterm
+
+# Set a default value for DISPLAY
+ENV DISPLAY=:1
+
+ENV UDEV=1
+
+# # Install dependencies for libcamera
+RUN install_packages libcamera-apps
+
+RUN install_packages \
+    libcamera-dev \
+    libcamera-apps-lite \
+    python3 \
+    v4l-utils
+
+RUN install_packages x11vnc \
+    xorg \
+    x11-utils \
+    xvfb \
+    wmctrl \
+    tightvncserver \
+    lightdm
+
+
+RUN apt-get update && \
+    apt-get install -y python3 python3-tk && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN install_packages raspi-config
+
+
+
+
+RUN apt-get update && apt-get install -y xvfb
+
+WORKDIR /usr/src/app
+
+COPY . .
+
+COPY supervisor /etc/supervisor
+
+COPY autostart /etc/xdg/lxsession/LXDE-pi/autostart
+# Avoid requesting XFCE4 question on X start
+ENV XFCE_PANEL_MIGRATE_DEFAULT=1
+
+CMD ["bash", "start.sh"]

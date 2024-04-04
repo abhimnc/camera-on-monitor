@@ -1,0 +1,16 @@
+version: '2'
+volumes:
+   my-persistent-storage:
+services:
+  vnc-desktop:
+    restart: always
+    build: ./vnc-app
+    ports:
+      - "8080:5900"
+    devices:
+      - "/dev/video0:/dev/video0"
+    user: root
+    privileged: true
+    volumes:
+      -  my-persistent-storage:/app/output
+    network_mode: host
