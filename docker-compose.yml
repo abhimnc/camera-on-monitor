@@ -3,13 +3,13 @@ volumes:
    my-persistent-storage:
 services:
   vnc-desktop:
-    restart: always
-    build: ./vnc-app
+    restart: always #Ensures the container restarts automatically if it stops for any reason (unless it is explicitly stopped).
+    build: ./vnc-app #Specifies the path to the Dockerfile used to build the image for this service.
     ports:
-      - "8080:5900"
+      - "8080:5900" #Maps TCP port 5900 inside the container to port 8080 on the host, which is commonly used for VNC services.
     devices:
-      - "/dev/video0:/dev/video0"
-    user: root
-    privileged: true
+      - "/dev/video0:/dev/video0" #Gives the container access to a video device from the host (e.g., a webcam).
+    user: root #Runs the container as the root user, which may be necessary for certain administrative permissions.
+    privileged: true #Provides extended privileges to this container, which can be necessary for direct hardware access like video devices.
     volumes:
-      -  my-persistent-storage:/app/output
+      -  my-persistent-storage:/app/output #Mounts the persistent storage volume to /app/output inside the container for any output files or data.
