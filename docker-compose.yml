@@ -13,4 +13,3 @@ services:
     privileged: true
     volumes:
       -  my-persistent-storage:/app/output
-    network_mode: host

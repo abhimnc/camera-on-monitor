@@ -1,62 +1,62 @@
 FROM balenalib/raspberry-pi-debian-python
+# FROM balenalib/raspberrypi4-64-ubuntu-python
 
-RUN install_packages x11vnc \
-    x11-utils \
-    xvfb \
-    wmctrl \
-    supervisor
-
-RUN install_packages xserver-xorg \
-  xserver-xorg-input-evdev \
-  xinit \
-  xfce4 \
-  xfce4-terminal \
-  x11-xserver-utils \
-  dbus-x11 \
-  xterm
-
-# Set a default value for DISPLAY
-ENV DISPLAY=:1
-
-ENV UDEV=1
-
-# # Install dependencies for libcamera
-RUN install_packages libcamera-apps
-
-RUN install_packages \
+# Install multiple packages in a single RUN command to reduce image layers
+RUN install_packages x11-utils \
+    supervisor \
+    xserver-xorg \
+    xserver-xorg-input-evdev \
+    xinit \
+    xfce4 \
+    xfce4-terminal \
+    x11-xserver-utils \
+    dbus-x11 \
+    xterm \
     libcamera-dev \
     libcamera-apps-lite \
     python3 \
-    v4l-utils
+    v4l-utils \
+    python3-tk
 
-RUN install_packages x11vnc \
-    xorg \
-    x11-utils \
-    xvfb \
-    wmctrl \
-    tightvncserver \
-    lightdm
-
-
+# Clean up APT cache in the same layer to keep the image size down
 RUN apt-get update && \
-    apt-get install -y python3 python3-tk && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN install_packages raspi-config
 
+# DISPLAY=:1: Sets the display environment variable, useful for GUI applications to know which display to connect.
+# UDEV=1: Ensures that udev (device manager for the Linux kernel) is enabled in the container, necessary for device management.
+# XFCE_PANEL_MIGRATE_DEFAULT=1: Helps with migration defaults for the XFCE panel.
 
+# Set environment variables
+ENV DISPLAY=:1 \
+    UDEV=1 \
+    XFCE_PANEL_MIGRATE_DEFAULT=1
 
-
-RUN apt-get update && apt-get install -y xvfb
-
+# Set the working directory
 WORKDIR /usr/src/app
 
+# Copy files
 COPY . .
-
 COPY supervisor /etc/supervisor
-
-COPY autostart /etc/xdg/lxsession/LXDE-pi/autostart
-# Avoid requesting XFCE4 question on X start
-ENV XFCE_PANEL_MIGRATE_DEFAULT=1
-
 CMD ["bash", "start.sh"]
+
+#installing image viewer - https://www.baeldung.com/linux/view-images-from-terminal#:~:text=2.,need%20to%20install%20it%20ourselves.
+
+# x11vnc: A VNC server allowing remote access to the graphical interface of the Raspberry Pi.
+# x11-utils: Utilities for managing X11, the primary windowing system for Linux.
+# xvfb: X Virtual Framebuffer allows you to run graphical applications without a display (headless).
+# wmctrl: Command line tool to interact with an X Window Manager.
+# supervisor: A client/server system that allows its users to monitor and control a number of processes on UNIX-like operating systems.
+# xserver-xorg: Basic X server common to most desktop Linux distributions.
+# xserver-xorg-input-evdev: X.Org input driver for generic input event devices.
+# xinit: Initializes the X Window System.
+# xfce4: A lightweight desktop environment for UNIX-like operating systems.
+# xfce4-terminal: Terminal emulator for XFCE desktop environment.
+# x11-xserver-utils: Utilities for managing the X server.
+# dbus-x11: Allows you to use D-Bus with X11 (inter-process communication system).
+# xterm: Standard terminal emulator for the X Window System.
+# libcamera-dev, libcamera-apps-lite: Development files and lightweight applications for camera support (specifically for newer Raspberry Pi camera interfaces).
+# python3: Python programming language, essential for many scripting and development tasks.
+# v4l-utils: Utilities for video4linux, a collection of device drivers and an API for supporting realtime video capture on Linux.
+# python3-tk: Python bindings to the Tk toolkit for GUI development.
